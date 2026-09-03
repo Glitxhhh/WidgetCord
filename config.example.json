@@ -1,0 +1,24 @@
+{
+  "applicationId": "YOUR_DISCORD_APPLICATION_ID",
+  "botToken": "YOUR_BOT_TOKEN",
+  "guildId": "YOUR_GUILD_ID",
+  "targetUserIds": ["YOUR_DISCORD_USER_ID"],
+  "goal": 1000,
+  "intervalMinutes": 10,
+  "staticFields": {
+    "name": "My Server",
+    "sub01": "Join My Server today!",
+    "primary_image": { "url": "https://example.com/icon.png" },
+    "preview_icon": { "url": "https://example.com/icon.png" },
+    "preview_image": { "url": "https://example.com/icon.png" },
+    "preview_value": "Custom widget",
+    "mini_text": "Join My Server today!",
+    "mini_icon": { "url": "https://example.com/icon.png" },
+    "sub01_icon": { "url": "https://example.com/icon.png" },
+    "mini_image": { "url": "https://example.com/icon.png" },
+    "progress_text": "https://discord.gg/your-invite",
+    "progress_description": "Join today!",
+    "progress_image": { "url": "https://example.com/icon.png" },
+    "activity_text": "Growing the community"
+  }
+}

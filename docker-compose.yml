@@ -1,0 +1,15 @@
+services:
+  widgetcord:
+    build: .
+    image: widgetcord
+    container_name: widgetcord
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+    volumes:
+      - ./config.json:/app/config.json
+      # state.json is just a runtime cache (last push time/value) -- not mounted, so it
+      # resets on container recreation. That's fine; it gets rebuilt on the next push.

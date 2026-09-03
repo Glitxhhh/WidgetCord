@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WidgetCord</title>
+<style>
+  :root {
+    --bg: #0b0b0e;
+    --panel: #16161b;
+    --panel-2: #1d1d24;
+    --border: #2a2a33;
+    --text: #e8e8ec;
+    --muted: #9a9aa5;
+    --accent: #7c6cf0;
+    --good: #3ecf8e;
+    --bad: #e5566b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    padding: 32px 16px 80px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 14px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  .stat { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .stat .value { font-size: 20px; font-weight: 600; margin-top: 4px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge.good { background: rgba(62,207,142,.15); color: var(--good); }
+  .badge.bad { background: rgba(229,86,107,.15); color: var(--bad); }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 14px 0 6px; }
+  input, textarea {
+    width: 100%; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 9px 11px; font-size: 14px; font-family: inherit;
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .btn {
+    appearance: none; border: none; border-radius: 8px; padding: 10px 16px; font-size: 14px;
+    font-weight: 600; cursor: pointer; margin-top: 16px; margin-right: 10px;
+  }
+  .btn.primary { background: var(--accent); color: white; }
+  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .msg { font-size: 13px; margin-top: 10px; min-height: 18px; }
+  .msg.good { color: var(--good); }
+  .msg.bad { color: var(--bad); }
+  .caveat {
+    background: rgba(124,108,240,.1); border: 1px solid rgba(124,108,240,.35);
+    border-radius: 8px; padding: 12px 14px; font-size: 13px; color: var(--text); margin-bottom: 14px;
+  }
+  ol { font-size: 13px; color: var(--muted); padding-left: 20px; line-height: 1.7; }
+  code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  a.link { color: var(--accent); text-decoration: none; font-weight: 600; }
+  a.link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <h1>WidgetCord</h1>
+    <p class="sub">Auto-pushes live data to your Discord profile widget on a schedule.</p>
+  </div>
+
+  <div class="card">
+    <h2>Status</h2>
+    <div class="stat-grid" id="statusGrid">
+      <div class="stat"><div class="label">Live member count</div><div class="value" id="liveCount">–</div></div>
+      <div class="stat"><div class="label">Last pushed value</div><div class="value" id="lastPushed">–</div></div>
+      <div class="stat"><div class="label">Last push</div><div class="value" id="lastPushAt">–</div></div>
+      <div class="stat"><div class="label">Next push</div><div class="value" id="nextPushAt">–</div></div>
+    </div>
+    <div id="errorLine" style="margin-top:14px;"></div>
+    <button class="btn primary" id="pushNowBtn">Push now</button>
+    <span class="msg" id="pushMsg"></span>
+  </div>
+
+  <div class="card">
+    <h2>Configuration</h2>
+    <div class="row">
+      <div>
+        <label for="goal">Goal (member target)</label>
+        <input id="goal" type="number" min="1">
+      </div>
+      <div>
+        <label for="interval">Update interval (minutes)</label>
+        <input id="interval" type="number" min="1">
+      </div>
+    </div>
+
+    <label for="progressText">Objective name (link/title on the progress bar)</label>
+    <input id="progressText" type="text">
+
+    <label for="progressDescription">Objective subtitle</label>
+    <input id="progressDescription" type="text">
+
+    <label for="activityText">Activity accessory text</label>
+    <input id="activityText" type="text">
+
+    <label for="targetUserIds">Target Discord user IDs (comma-separated — whose profiles get the push)</label>
+    <input id="targetUserIds" type="text">
+
+    <button class="btn primary" id="saveBtn">Save changes</button>
+    <span class="msg" id="saveMsg"></span>
+  </div>
+
+  <div class="card">
+    <h2>Add to your profile</h2>
+    <div class="caveat">
+      <strong>Heads up:</strong> as of the June 2026 Discord change, application widgets like this
+      one can currently only be added by the <em>application owner's</em> account. Staff members may
+      not be able to add it to their own profile yet — this is a Discord-side restriction, not a bug
+      here. Once Discord lifts it, add the staff member's Discord user ID above and it'll start
+      receiving pushes automatically.
+    </div>
+    <a class="link" href="https://discord.com/settings/profiles" target="_blank" rel="noopener">
+      Open Discord profile settings →
+    </a>
+    <ol>
+      <li>Open Discord on desktop or web (mobile isn't supported for widgets).</li>
+      <li>Go to <strong>User Settings</strong> (gear icon) → <strong>Profiles</strong> tab.</li>
+      <li>Scroll to <strong>Profile Widgets</strong> and press <strong>Add Widgets</strong>.</li>
+      <li>Find your server's widget (the display name you set during setup) in the list and add it.</li>
+      <li>Press <strong>Save</strong> to confirm.</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+async function fetchJSON(url, opts) {
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+function fmtTime(iso) {
+  if (!iso) return '–';
+  const d = new Date(iso);
+  return d.toLocaleString();
+}
+
+async function loadStatus() {
+  try {
+    const s = await fetchJSON('/api/status');
+    document.getElementById('liveCount').textContent = s.liveCount ?? '–';
+    document.getElementById('lastPushed').textContent = s.lastPushedValue ?? '–';
+    document.getElementById('lastPushAt').textContent = fmtTime(s.lastPushAt);
+    document.getElementById('nextPushAt').textContent = fmtTime(s.nextPushAt);
+
+    const errLine = document.getElementById('errorLine');
+    if (s.lastError || s.liveError) {
+      errLine.innerHTML = '<span class="badge bad">Error</span> <span class="msg bad">' +
+        (s.liveError || s.lastError) + '</span>';
+    } else {
+      errLine.innerHTML = '<span class="badge good">Healthy</span>';
+    }
+    return s;
+  } catch (e) {
+    document.getElementById('errorLine').innerHTML = '<span class="badge bad">Unreachable</span>';
+  }
+}
+
+async function loadConfig() {
+  const c = await fetchJSON('/api/config');
+  document.getElementById('goal').value = c.goal;
+  document.getElementById('interval').value = c.intervalMinutes;
+  document.getElementById('progressText').value = c.staticFields.progress_text || '';
+  document.getElementById('progressDescription').value = c.staticFields.progress_description || '';
+  document.getElementById('activityText').value = c.staticFields.activity_text || '';
+  document.getElementById('targetUserIds').value = (c.targetUserIds || []).join(', ');
+}
+
+document.getElementById('pushNowBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('pushNowBtn');
+  const msg = document.getElementById('pushMsg');
+  btn.disabled = true;
+  msg.textContent = 'Pushing...';
+  msg.className = 'msg';
+  try {
+    const r = await fetchJSON('/api/push-now', { method: 'POST' });
+    if (r.ok) {
+      msg.textContent = 'Pushed count ' + r.count + ' successfully.';
+      msg.className = 'msg good';
+    } else {
+      msg.textContent = 'Failed: ' + r.error;
+      msg.className = 'msg bad';
+    }
+    await loadStatus();
+  } catch (e) {
+    msg.textContent = 'Failed: ' + e.message;
+    msg.className = 'msg bad';
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  const msg = document.getElementById('saveMsg');
+  const targetUserIds = document.getElementById('targetUserIds').value
+    .split(',').map(s => s.trim()).filter(Boolean);
+
+  const body = {
+    goal: Number(document.getElementById('goal').value),
+    intervalMinutes: Number(document.getElementById('interval').value),
+    targetUserIds,
+    staticFields: {
+      progress_text: document.getElementById('progressText').value,
+      progress_description: document.getElementById('progressDescription').value,
+      activity_text: document.getElementById('activityText').value,
+    },
+  };
+
+  try {
+    await fetchJSON('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    msg.textContent = 'Saved.';
+    msg.className = 'msg good';
+  } catch (e) {
+    msg.textContent = 'Failed: ' + e.message;
+    msg.className = 'msg bad';
+  }
+});
+
+loadStatus();
+loadConfig();
+setInterval(loadStatus, 30000);
+</script>
+</body>
+</html>

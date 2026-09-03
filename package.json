@@ -1,0 +1,15 @@
+{
+  "name": "widgetcord",
+  "version": "1.0.0",
+  "private": false,
+  "license": "MIT",
+  "description": "Keeps a Discord profile widget (Widgets V2) updated automatically from a live data source, with a web panel to configure it.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "setup": "node setup.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
