@@ -114,6 +114,19 @@ by hand or through the panel:
   deployment uses, behind nginx.
 - **Plain Node**: `npm start`, manage the process however you like.
 
+## Current scope & feature requests
+
+Right now the only built-in data source is **live Discord guild member count** — that's the
+one thing `npm run setup` and `updater.js` know how to fetch and push today.
+
+That said, this doesn't have to stay a "promote my server" tool. If you'd like WidgetCord to
+support a different data source, a different widget layout, or something that expands what
+these widgets get used for entirely, I'd genuinely like to hear about it and am happy to add
+it:
+
+- Discord: **@Glitxhhh**
+- Or [open an issue](https://github.com/Glitxhhh/WidgetCord/issues) on this repo
+
 ## Out of scope / contribution ideas
 
 - Only the progress-bar layout (`widget_bottom_progress` + `mini_profile_hero_stat` +
